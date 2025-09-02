@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倍数计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #07c160;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .date-display {
+            font-size: 16px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #07c160;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #07c160;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #06a050;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .back-button {
+            background-color: #6c757d;
+            text-align: center;
+            display: block;
+            margin: 20px auto;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            width: 100px;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>倍数计算器</h2>
+        <div class="date-display" id="current-date"></div>
+    </div>
+    
+    <div class="container">
+        <h1>倍数计算器</h1>
+        <div class="input-group">
+            <label for="a-input">请输入a的值（1-1000）：</label>
+            <input type="number" id="a-input" placeholder="输入a的值" min="1" max="1000">
+            
+            <label for="b-input">请输入b的值（1-1000）：</label>
+            <input type="number" id="b-input" placeholder="输入b的值" min="1" max="1000">
+        </div>
+        <button onclick="calculateMultiples()">计算3的倍数个数</button>
+        <div id="result" class="result" style="display: none;"></div>
+        <a href="../index.html" class="back-button">返回</a>
+    </div>
+
+    <script>
+        // 显示当前日期和星期几
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const dayOfWeek = days[now.getDay()];
+            
+            document.getElementById('current-date').textContent = 
+                `${year}年${month}月${day}日 ${dayOfWeek}`;
+        }
+        
+        // 计算区间内3的倍数个数
+        function calculateMultiples() {
+            const aInput = document.getElementById('a-input');
+            const bInput = document.getElementById('b-input');
+            
+            const a = parseInt(aInput.value);
+            const b = parseInt(bInput.value);
+            
+            // 验证输入
+            if (isNaN(a) || isNaN(b)) {
+                alert('请输入有效的数字');
+                return;
+            }
+            
+            if (a < 1 || a > 1000 || b < 1 || b > 1000) {
+                alert('必须满足 1 ≤ a ≤ b ≤ 1000');
+                return;
+            }
+            
+            if (a > b) {
+                alert('a的值不能大于b的值');
+                return;
+            }
+            
+            let count = 0;
+            for (let i = a; i <= b; i++) {
+                if (i % 3 === 0) {
+                    count++;
+                }
+            }
+            
+            document.getElementById('result').innerHTML = 
+                `在区间 [${a}, ${b}] 内，3的倍数有 ${count} 个`;
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        // 初始化日期显示
+        updateDateTime();
+        // 每秒更新一次时间
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>

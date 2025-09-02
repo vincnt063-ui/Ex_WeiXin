@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车辆限行查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #07c160;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .date-display {
+            font-size: 16px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #07c160;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #07c160;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #06a050;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .back-button {
+            background-color: #6c757d;
+            text-align: center;
+            display: block;
+            margin: 20px auto;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            width: 100px;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .week-info {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>车辆限行查询</h2>
+        <div class="date-display" id="current-date"></div>
+    </div>
+    
+    <div class="container">
+        <h1>车辆限行查询</h1>
+        <div class="week-info" id="week-info"></div>
+        <div class="input-group">
+            <label for="plate-input">请输入车牌号码：</label>
+            <input type="text" id="plate-input" placeholder="请输入车牌号码">
+        </div>
+        <button onclick="checkRestriction()">查询限行</button>
+        <div id="result" class="result" style="display: none;"></div>
+        <a href="../index.html" class="back-button">返回</a>
+    </div>
+
+    <script>
+        // 显示当前日期和星期几
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const dayOfWeek = days[now.getDay()];
+            
+            document.getElementById('current-date').textContent = 
+                `${year}年${month}月${day}日 ${dayOfWeek}`;
+            
+            // 显示今天是星期几
+            document.getElementById('week-info').textContent = 
+                `今天是${dayOfWeek}，限行规则：${getRestrictionRule(now.getDay())}`;
+        }
+        
+        // 获取限行规则
+        function getRestrictionRule(dayOfWeek) {
+            switch(dayOfWeek) {
+                case 1: return "尾号1和6限行";
+                case 2: return "尾号2和7限行";
+                case 3: return "尾号3和8限行";
+                case 4: return "尾号4和9限行";
+                case 5: return "尾号5和0限行";
+                default: return "今日不限行";
+            }
+        }
+        
+        // 查询限行情况
+        function checkRestriction() {
+            const plate = document.getElementById('plate-input').value.trim();
+            
+            if (!plate) {
+                alert('请输入车牌号码');
+                return;
+            }
+            
+            // 车牌长度检查
+            if (plate.length === 8) {
+                document.getElementById('result').innerHTML = 
+                    `车牌${plate}今天不限行（新能源车）`;
+                document.getElementById('result').style.display = 'block';
+                return;
+            } else if (plate.length !== 7) {
+                alert('车牌格式错误，请输入正确的车牌号码');
+                return;
+            }
+            
+            // 获取星期几
+            const now = new Date();
+            const dayOfWeek = now.getDay(); // 0=星期日, 1=星期一, ..., 6=星期六
+            
+            // 获取车牌最后一位或倒数第二位数字
+            let lastDigit;
+            const lastChar = plate.charAt(plate.length - 1);
+            
+            if (/\d/.test(lastChar)) {
+                lastDigit = parseInt(lastChar);
+            } else {
+                // 如果最后一位不是数字，取倒数第二位
+                const secondLastChar = plate.charAt(plate.length - 2);
+                if (/\d/.test(secondLastChar)) {
+                    lastDigit = parseInt(secondLastChar);
+                } else {
+                    alert('无法识别车牌号码格式');
+                    return;
+                }
+            }
+            
+            // 判断是否限行
+            let isRestricted = false;
+            switch(dayOfWeek) {
+                case 1: // 星期一
+                    isRestricted = (lastDigit === 1 || lastDigit === 6);
+                    break;
+                case 2: // 星期二
+                    isRestricted = (lastDigit === 2 || lastDigit === 7);
+                    break;
+                case 3: // 星期三
+                    isRestricted = (lastDigit === 3 || lastDigit === 8);
+                    break;
+                case 4: // 星期四
+                    isRestricted = (lastDigit === 4 || lastDigit === 9);
+                    break;
+                case 5: // 星期五
+                    isRestricted = (lastDigit === 5 || lastDigit === 0);
+                    break;
+                default: // 星期六、星期日
+                    isRestricted = false;
+                    break;
+            }
+            
+            if (isRestricted) {
+                document.getElementById('result').innerHTML = 
+                    `车牌${plate}今天限行`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `车牌${plate}今天不限行`;
+            }
+            
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        // 初始化日期显示
+        updateDateTime();
+        // 每秒更新一次时间
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>
